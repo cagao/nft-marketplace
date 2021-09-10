@@ -1,7 +1,7 @@
 require("@nomiclabs/hardhat-waffle");
 const env = require("dotenv").config().parsed;
 
-const projectId = env.INFURA_PROJECT_ID;
+const projectId = env.NEXT_PUBLIC_INFURA_PROJECT_ID;
 const accountPrivateKey = env.ETHEREUM_ACCOUNT_PRIVATE_KEY;
 
 module.exports = {
@@ -15,6 +15,10 @@ module.exports = {
     },
     mainnet: {
       url: `https://polygon-mainnet.infura.io/v3/${projectId}`,
+      accounts: [accountPrivateKey],
+    },
+    rinkeby: {
+      url: `https://rinkeby.infura.io/v3/${projectId}`,
       accounts: [accountPrivateKey],
     },
   },
