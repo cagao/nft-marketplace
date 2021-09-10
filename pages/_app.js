@@ -13,12 +13,12 @@ function MyApp({ Component, pageProps }) {
           <Link href="/create-item">
             <a className="mr-6 text-pink-500">Sell Digital Asset</a>
           </Link>
-          <Link href="/my-assets">
+          {/* <Link href="/my-assets">
             <a className="mr-6 text-pink-500">My Digital Assets</a>
           </Link>
           <Link href="/creator-dashboard">
             <a className="mr-6 text-pink-500">Creator Dashboard</a>
-          </Link>
+          </Link> */}
         </div>
       </nav>
       <Component {...pageProps} />

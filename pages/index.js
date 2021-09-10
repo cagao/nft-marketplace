@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import axios from "axios";
 
+import Web3Modal from "web3modal";
 import NFT from "../artifacts/contracts/NFT.sol/NFT.json";
-import NFTMarket from "../artifacts/contracts/NFTMarket.sol/NFTMarket.json";
-import config, {
-  contractNftAddress,
-  contractNftMarketAddress,
-} from "../config";
+import Market from "../artifacts/contracts/NFTMarket.sol/NFTMarket.json";
+
+import { provider } from "../utils/helper";
+import { contractNftAddress, contractNftMarketAddress } from "../config";
 
 export default function Home() {
   const [nfts, setNfts] = useState([]);
@@ -18,10 +18,6 @@ export default function Home() {
   }, []);
 
   async function loadNfts() {
-    console.log(config);
-
-    const provider = new ethers.providers.JsonRpcProvider();
-
     const tokenContract = new ethers.Contract(
       contractNftAddress,
       NFT.abi,
@@ -30,7 +26,7 @@ export default function Home() {
 
     const marketContract = new ethers.Contract(
       contractNftMarketAddress,
-      NFTMarket.abi,
+      Market.abi,
       provider
     );
 
@@ -65,7 +61,7 @@ export default function Home() {
     const signer = provider.getSigner();
     const contract = new ethers.Contract(
       contractNftMarketAddress,
-      NFTMarket.abi,
+      Market.abi,
       signer
     );
     const price = ethers.utils.parseUnits(nft.price.toString(), "ether");
@@ -75,7 +71,7 @@ export default function Home() {
       { value: price }
     );
     await transaction.wait();
-    loadNFTs();
+    loadNfts();
   }
 
   if (loading === "loaded" && !nfts.length) {
