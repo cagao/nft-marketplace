@@ -8,5 +8,5 @@ export async function upload(file) {
   });
 
   const url = `https://ipfs.infura.io/ipfs/${added.path}`;
-  return { target: { value: { url } } };
+  return { target: { value: url } };
 }

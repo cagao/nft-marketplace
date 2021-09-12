@@ -65,7 +65,12 @@ export default function Home() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4">
           {nfts.map((nft, i) => (
             <div key={i} className="border shadow rounded-xl overflow-hidden">
-              <img src={nft.image} alt={`${nft.name} ${nft.description}`} />
+              <img
+                style={{ height: "200px", width: "100%" }}
+                src={nft.image}
+                className="object-cover"
+                alt={`${nft.name} ${nft.description}`}
+              />
               <div className="p-4">
                 <p
                   style={{ height: "64px" }}

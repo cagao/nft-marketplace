@@ -29,6 +29,7 @@ export default function CreateItem() {
   async function createMarket() {
     // Check data
     const { name, description, price, image } = formInput;
+
     if (loading) return;
     if (!name || !description || !price || !image) return;
 
@@ -112,7 +113,7 @@ export default function CreateItem() {
         )}
 
         <button
-          disabled={!loading}
+          disabled={loading}
           onClick={createMarket}
           className="font-bold mt-4 bg-pink-500 text-white rounded p-4 shadow-lg"
         >
