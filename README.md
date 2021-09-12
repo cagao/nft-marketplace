@@ -53,6 +53,7 @@ npx hardhat help
 ## Website
 
 - [Infura](https://infura.io)
+- [Hardhat](https://hardhat.org/)
 - [Polygon](https://polygon.technology)
 - [Matic Developer](https://docs.matic.network/docs/develop/getting-started)
 

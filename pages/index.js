@@ -2,12 +2,10 @@ import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import axios from "axios";
 
-import Web3Modal from "web3modal";
-import NFT from "../artifacts/contracts/NFT.sol/NFT.json";
-import Market from "../artifacts/contracts/NFTMarket.sol/NFTMarket.json";
-
-import { provider } from "../utils/helper";
 import { contractNftAddress, contractNftMarketAddress } from "../config";
+import NFTContract from "../contracts/NFTContract";
+import NFTMarketContract from "../contracts/NFTMarketContract";
+import { PROVIDER_MODE } from "../contracts/BaseContract";
 
 export default function Home() {
   const [nfts, setNfts] = useState([]);
@@ -18,17 +16,8 @@ export default function Home() {
   }, []);
 
   async function loadNfts() {
-    const tokenContract = new ethers.Contract(
-      contractNftAddress,
-      NFT.abi,
-      provider
-    );
-
-    const marketContract = new ethers.Contract(
-      contractNftMarketAddress,
-      Market.abi,
-      provider
-    );
+    const tokenContract = await NFTContract();
+    const marketContract = await NFTMarketContract();
 
     const data = await marketContract.fetchMarketItems();
     const items = await Promise.all(
@@ -55,15 +44,7 @@ export default function Home() {
   }
 
   async function buyNft(nft) {
-    const web3Modal = new Web3Modal();
-    const connection = await web3Modal.connect();
-    const provider = new ethers.providers.Web3Provider(connection);
-    const signer = provider.getSigner();
-    const contract = new ethers.Contract(
-      contractNftMarketAddress,
-      Market.abi,
-      signer
-    );
+    const contract = await NFTMarketContract(PROVIDER_MODE.PRIVATE);
     const price = ethers.utils.parseUnits(nft.price.toString(), "ether");
     const transaction = await contract.createMarketSale(
       contractNftAddress,
@@ -84,7 +65,7 @@ export default function Home() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4">
           {nfts.map((nft, i) => (
             <div key={i} className="border shadow rounded-xl overflow-hidden">
-              <img src={nft.image} />
+              <img src={nft.image} alt={`${nft.name} ${nft.description}`} />
               <div className="p-4">
                 <p
                   style={{ height: "64px" }}

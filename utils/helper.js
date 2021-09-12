@@ -1,7 +1,12 @@
-import { ethers } from "ethers";
-import { network, infuraProjectId } from "../config";
+import { create as ipfsHttpClient } from "ipfs-http-client";
 
-export const provider =
-  network === "hardhat"
-    ? new ethers.providers.JsonRpcProvider()
-    : new ethers.providers.InfuraProvider("rinkeby", infuraProjectId);
+export const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
+
+export async function upload(file) {
+  const added = await client.add(file, {
+    progress: (prog) => console.log(`received: ${prog}`),
+  });
+
+  const url = `https://ipfs.infura.io/ipfs/${added.path}`;
+  return { target: { value: { url } } };
+}
