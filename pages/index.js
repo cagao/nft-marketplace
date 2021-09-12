@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import axios from "axios";
 
-import { contractNftAddress, contractNftMarketAddress } from "../config";
+import { contractNftAddress } from "../config";
 import NFTContract from "../contracts/NFTContract";
 import NFTMarketContract from "../contracts/NFTMarketContract";
 import { PROVIDER_MODE } from "../contracts/BaseContract";
@@ -72,12 +72,7 @@ export default function Home() {
                 alt={`${nft.name} ${nft.description}`}
               />
               <div className="p-4">
-                <p
-                  style={{ height: "64px" }}
-                  className="text-2xl font-semibold"
-                >
-                  {nft.name}
-                </p>
+                <p className="text-2xl font-semibold">{nft.name}</p>
                 <div style={{ height: "70px", overflow: "hidden" }}>
                   <p className="text-gray-400">{nft.description}</p>
                 </div>

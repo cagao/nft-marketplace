@@ -1,5 +1,7 @@
 import { create as ipfsHttpClient } from "ipfs-http-client";
 
+export const EMPTY_ADDRESS = "0x0000000000000000000000000000000000000000";
+
 export const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
 
 export async function upload(file) {
