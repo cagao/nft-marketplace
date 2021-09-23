@@ -1,5 +1,19 @@
 const { ethers } = require("hardhat");
 
+const { ipfsTestClient } = require("ipfs-http-client");
+
+describe("IPFSAddGet", function () {
+  it("Should upload to ipfs successfully", async function () {
+    const client = ipfsTestClient('http://localhost:5001/api/v0');
+    const {added} = client.add('README.md', {
+      progress: (prog) => console.log(`received: ${prog}`),
+    });
+
+    const url = `http://localhost:8080/ipfs/${added.path}`;
+    console.log("success uploading file: ", url);
+  });
+});
+
 describe("NFTMarket", function () {
   it("Should create and execute market sales", async function () {
     const Market = await ethers.getContractFactory("NFTMarket");

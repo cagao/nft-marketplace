@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import Web3Modal from "web3modal";
-import { network, infuraProjectId } from "../config";
+
 
 export const PROVIDER_MODE = {
   PUBLIC: "PUBLIC",
@@ -17,10 +17,7 @@ export default async function BaseContract(address, abi, mode = "") {
   }
 
   if (mode === PROVIDER_MODE.PUBLIC) {
-    provider =
-      network === "hardhat"
-        ? new ethers.providers.JsonRpcProvider()
-        : new ethers.providers.InfuraProvider("rinkeby", infuraProjectId);
+    provider = new ethers.providers.JsonRpcProvider();
   }
 
   if (!provider) {
