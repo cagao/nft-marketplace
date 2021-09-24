@@ -1,35 +1,21 @@
-const { ethers } = require("hardhat");
+const NFT = artifacts.require("./NFT.sol")
+const NFTMarket = artifacts.require("./NFTMarket.sol")
 
-const { ipfsTestClient } = require("ipfs-http-client");
+require('web3')
 
-describe("IPFSAddGet", function () {
-  it("Should upload to ipfs successfully", async function () {
-    const client = ipfsTestClient('http://localhost:5001/api/v0');
-    const {added} = client.add('README.md', {
-      progress: (prog) => console.log(`received: ${prog}`),
-    });
-
-    const url = `http://localhost:8080/ipfs/${added.path}`;
-    console.log("success uploading file: ", url);
-  });
-});
-
-describe("NFTMarket", function () {
+contract("NFTMarket", async (accounts) => {
   it("Should create and execute market sales", async function () {
-    const Market = await ethers.getContractFactory("NFTMarket");
-    const market = await Market.deploy();
-    await market.deployed();
+    const market = await NFTMarket.deployed();
     const marketAddress = market.address;
 
-    const NFT = await ethers.getContractFactory("NFT");
-    const nft = await NFT.deploy(marketAddress);
-    await nft.deployed();
+    const nft = await NFT.deployed(marketAddress);
     const nftContractAddress = nft.address;
 
     let listingPrice = await market.getListingPrice();
     listingPrice = listingPrice.toString();
 
-    const auctionPrice = ethers.utils.parseUnits("1", "ether");
+    // const auctionPrice = ethers.utils.parseUnits("1", "ether");
+    const auctionPrice = web3.utils.toWei("1", 'ether')
 
     await nft.createToken("nft.marketplace");
     await nft.createToken("marketplace.nft");
@@ -41,11 +27,7 @@ describe("NFTMarket", function () {
       value: listingPrice,
     });
 
-    const [_, buyerAddress] = await ethers.getSigners();
-
-    await market
-      .connect(buyerAddress)
-      .createMarketSale(nftContractAddress, 1, { value: auctionPrice });
+    await market.createMarketSale(nftContractAddress, 1, { value: auctionPrice, from: accounts[1] });
 
     items = await market.fetchMarketItems();
 
