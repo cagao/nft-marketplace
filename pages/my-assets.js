@@ -56,7 +56,7 @@ export default function MyAssets() {
                 src={nft.image}
                 className="rounded"
                 style={{ height: "200px", width: "100%" }}
-                alt={`${nft.name} ${nft.description}`}
+                alt={`${nft.name} ${nft.description} ${nft.owner}`}
               />
               <div className="p-4 bg-black">
                 <p className="text-2xl font-bold text-white">

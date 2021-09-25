@@ -1,11 +1,41 @@
+import React, { useEffect, useState } from"react";
 import Link from "next/link";
 import "../styles/globals.css";
+import getWeb3 from "./getWeb3";
 
-function MyApp({ Component, pageProps }) {
+
+function App({ Component, pageProps }) {
+  const [currentAccount, setCurrentAccount] = useState('');
+  const[web3,setWeb3] = useState();
+
+  const getweb3data = async() => {
+    try {
+      const web3 = await getWeb3();
+      setWeb3(web3);
+      //get the address from metamask
+      const accounts = await web3.eth.getAccounts();
+      console.log(accounts[0]);
+      setCurrentAccount(accounts[0]);
+      
+      //get the networkid 
+      const networkid = await web3.eth.net.getId();
+      console.log(networkid);
+    }
+    catch(error){
+      alert("consult console");
+      console.log(error);
+    }
+  }
+
+  useEffect(()=>{
+    getweb3data();
+  },[currentAccount]);
+
   return (
     <div>
       <nav className="border-b p-6">
         <p className="text-4xl font-bold">Macroverse Marketplace</p>
+        <p className="text-4x">current account: {currentAccount}</p>
         <div className="flex mt-4">
           <Link href="/">
             <a className="mr-4 text-pink-500">Home</a>
@@ -26,4 +56,4 @@ function MyApp({ Component, pageProps }) {
   );
 }
 
-export default MyApp;
+export default App;

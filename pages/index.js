@@ -7,13 +7,14 @@ import NFTContract from "../contracts/NFTContract";
 import NFTMarketContract from "../contracts/NFTMarketContract";
 import { PROVIDER_MODE } from "../contracts/BaseContract";
 
-export default function Home() {
+export default function Home(props) {
   const [nfts, setNfts] = useState([]);
   const [loading, setLoading] = useState("not-loaded");
-
+  
   useEffect(() => {
     loadNfts();
-  }, []);
+  }, [props.currentAccount]);
+
 
   async function loadNfts() {
     const tokenContract = await NFTContract();
@@ -55,6 +56,18 @@ export default function Home() {
     loadNfts();
   }
 
+  async function buyNftPrivately(nft) {
+    const contract = await NFTMarketContract(PROVIDER_MODE.PRIVATE);
+    const price = ethers.utils.parseUnits(nft.price.toString(), "ether");
+    const transaction = await contract.createMarketSale(
+      contractNftAddress,
+      nft.tokenId,
+      { value: price, privateFor: nft.seller},
+    );
+    await transaction.wait();
+    loadNfts();
+  }
+
   if (loading === "loaded" && !nfts.length) {
     return <h1 className="px-20 py-10 text-3xl">No items in marketplace</h1>;
   }
@@ -69,23 +82,34 @@ export default function Home() {
                 style={{ height: "200px", width: "100%" }}
                 src={nft.image}
                 className="object-cover"
-                alt={`${nft.name} ${nft.description}`}
+                alt={`${nft.name} ${nft.description} ${nft.owner} ${nft.seller}`}
               />
               <div className="p-4">
                 <p className="text-2xl font-semibold">{nft.name}</p>
                 <div style={{ height: "70px", overflow: "hidden" }}>
                   <p className="text-gray-400">{nft.description}</p>
+                  <p className="text-gray-400">seller:{nft.seller}</p>
+                  <p className="text-gray-400">current account:{props.currentAccount}</p>
                 </div>
               </div>
               <div className="p-4 bg-black">
                 <p className="text-2xl mb-4 font-bold text-white">
                   {nft.price} ETH
                 </p>
+                
                 <button
                   className="w-full bg-pink-500 text-white font-bold py-2 px-12 rounded"
+                  disabled={props.currentAccount == nft.seller}
                   onClick={() => buyNft(nft)}
                 >
                   Buy
+                </button>
+                <button
+                  className="w-full bg-red-500 text-white font-bold py-2 px-12 rounded"
+                  disabled={props.currentAccount == nft.seller}
+                  onClick={() => buyNftPrivately(nft)}
+                >
+                  Buy Privately
                 </button>
               </div>
             </div>
