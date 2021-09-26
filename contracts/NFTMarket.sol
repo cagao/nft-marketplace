@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 contract NFTMarket is ReentrancyGuard {
     using Counters for Counters.Counter;
     Counters.Counter private _itemIds;
-    Counters.Counter private _itemsSold;
+    Counters.Counter private _itemsAvailable;
 
     address payable owner;
     uint256 listingPrice = 0.025 ether;
@@ -57,6 +57,11 @@ contract NFTMarket is ReentrancyGuard {
         return listingPrice;
     }
 
+    /* Returns the available contract count */
+    function getAvailableCount() public view returns (uint256) {
+        return _itemsAvailable.current();
+    }
+
     /* Places an item for sale on the marketplace */
     function createMarketItem(
         address nftContract,
@@ -82,7 +87,7 @@ contract NFTMarket is ReentrancyGuard {
             price,
             false
         );
-
+        _itemsAvailable.increment();
         IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId);
 
         emit MarketItemCreated(
@@ -98,7 +103,7 @@ contract NFTMarket is ReentrancyGuard {
     }
 
     /* Places an item for resell on the marketplace */
-    function resellMarketItem(uint256 itemId) public payable nonReentrant {
+    function createMarketResale(uint256 itemId) public payable nonReentrant {
         
         require(itemId <= _itemIds.current());
 
@@ -106,6 +111,7 @@ contract NFTMarket is ReentrancyGuard {
         idToMarketItem[itemId].owner = payable(address(0));
         idToMarketItem[itemId].sold = false;
 
+        _itemsAvailable.increment();
         emit MarketItemReselled(
             itemId,
             idToMarketItem[itemId].nftContract,
@@ -138,25 +144,24 @@ contract NFTMarket is ReentrancyGuard {
         IERC721(nftContract).transferFrom(address(this), msg.sender, tokenId);
         idToMarketItem[itemId].owner = payable(msg.sender);
         idToMarketItem[itemId].sold = true;
-        _itemsSold.increment();
+        _itemsAvailable.decrement();
         payable(owner).transfer(listingPrice);
     }
 
     /* Returns all unsold market items */
     function fetchMarketItems() public view returns (MarketItem[] memory) {
         uint256 itemCount = _itemIds.current();
-        uint256 unsoldItemCount = _itemIds.current() - _itemsSold.current();
-        uint256 currentIndex = 0;
+        uint256 i = 0;
+        MarketItem[] memory items = new MarketItem[](_itemsAvailable.current());
 
-        MarketItem[] memory items = new MarketItem[](unsoldItemCount);
-        for (uint256 i = 0; i < itemCount; i++) {
-            if (idToMarketItem[i + 1].owner == address(0)) {
-                uint256 currentId = i + 1;
-                MarketItem storage currentItem = idToMarketItem[currentId];
-                items[currentIndex] = currentItem;
-                currentIndex += 1;
+        for (uint256 j = 1; j <= itemCount; j++) {
+            if (!idToMarketItem[j].sold) {
+                items[i] = idToMarketItem[j];
+                i++;
+                require(i <= itemCount);
             }
         }
+
         return items;
     }
 

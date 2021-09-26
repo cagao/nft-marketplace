@@ -12,6 +12,8 @@ export default function MyAssets() {
   const [nfts, setNfts] = useState([]);
   const [loading, setLoading] = useState("not-loaded");
 
+  let currentAccount = router.query.currentAccount;
+
   useEffect(() => {
     loadNfts();
   }, []);
@@ -49,8 +51,8 @@ export default function MyAssets() {
   async function resellNft(itemId) {
     // resell the item
     let contract = await NFTMarketContract(PROVIDER_MODE.PRIVATE);
-    let transaction = await contract.resellMarketItem(
-      itemId
+    let transaction = await contract.createMarketResale(
+      itemId, {from: currentAccount}
     );
     await transaction.wait();
     router.push("/");
@@ -78,6 +80,12 @@ export default function MyAssets() {
                   Price - {nft.price} Eth
                 </p>
               </div>
+              <button
+                  className="w-full bg-pink-500 text-white font-bold py-2 px-12 rounded"
+                  onClick={() => resellNft(nft.itemId)}
+              >
+                Put for Sell
+              </button>
             </div>
           ))}
         </div>

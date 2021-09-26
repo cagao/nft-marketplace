@@ -43,6 +43,7 @@ export default function Home() {
 
           tokenId: i.tokenId.toNumber(),
           price: ethers.utils.formatUnits(i.price.toString(), "ether"),
+          sold: i.sold,
         };
       })
     );
@@ -97,6 +98,7 @@ export default function Home() {
                   <p className="text-gray-400">{nft.description}</p>
                   <p className="text-gray-400">seller:{nft.seller}</p>
                   <p className="text-gray-400">{currentAccount}</p>
+                  <div className={`${nft.sold?'':'hide'} text-gray-400`}>Sold out</div>
                 </div>
               </div>
               <div className="p-4 bg-black">
@@ -106,7 +108,7 @@ export default function Home() {
                 
                 <button
                   className="w-full bg-pink-500 text-white font-bold py-2 px-12 rounded"
-                  disabled={nft.seller == currentAccount}
+                  disabled={nft.seller == currentAccount || nft.sold}
                   onClick={() => buyNft(nft)}
                 >
                   Buy
