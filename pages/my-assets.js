@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import axios from "axios";
+import { useRouter } from "next/router";
 
 import NFTContract from "../contracts/NFTContract";
 import NFTMarketContract from "../contracts/NFTMarketContract";
 import { PROVIDER_MODE } from "../contracts/BaseContract";
 
 export default function MyAssets() {
+  const router = useRouter();
   const [nfts, setNfts] = useState([]);
   const [loading, setLoading] = useState("not-loaded");
 
@@ -25,6 +27,8 @@ export default function MyAssets() {
         const meta = await axios.get(tokenURI);
 
         return {
+          itemId: i.itemId.toNumber(),
+          minter: i.minter,
           owner: i.owner,
           seller: i.seller,
 
@@ -40,6 +44,17 @@ export default function MyAssets() {
 
     setNfts(items);
     setLoading("loaded");
+  }
+
+  async function resellNft(itemId) {
+    // resell the item
+    let contract = await NFTMarketContract(PROVIDER_MODE.PRIVATE);
+    let transaction = await contract.resellMarketItem(
+      itemId
+    );
+    await transaction.wait();
+    router.push("/");
+
   }
 
   if (loading === "loaded" && !nfts.length) {

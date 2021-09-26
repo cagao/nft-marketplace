@@ -21,6 +21,7 @@ contract NFTMarket is ReentrancyGuard {
         uint256 itemId;
         address nftContract;
         uint256 tokenId;
+        address payable minter;
         address payable seller;
         address payable owner;
         uint256 price;
@@ -33,6 +34,18 @@ contract NFTMarket is ReentrancyGuard {
         uint256 indexed itemId,
         address indexed nftContract,
         uint256 indexed tokenId,
+        address minter,
+        address seller,
+        address owner,
+        uint256 price,
+        bool sold
+    );
+
+    event MarketItemReselled(
+        uint256 indexed itemId,
+        address indexed nftContract,
+        uint256 indexed tokenId,
+        address minter,
         address seller,
         address owner,
         uint256 price,
@@ -64,6 +77,7 @@ contract NFTMarket is ReentrancyGuard {
             nftContract,
             tokenId,
             payable(msg.sender),
+            payable(msg.sender),
             payable(address(0)),
             price,
             false
@@ -76,8 +90,30 @@ contract NFTMarket is ReentrancyGuard {
             nftContract,
             tokenId,
             msg.sender,
+            msg.sender,
             address(0),
             price,
+            false
+        );
+    }
+
+    /* Places an item for resell on the marketplace */
+    function resellMarketItem(uint256 itemId) public payable nonReentrant {
+        
+        require(itemId <= _itemIds.current());
+
+        idToMarketItem[itemId].seller = payable(msg.sender);
+        idToMarketItem[itemId].owner = payable(address(0));
+        idToMarketItem[itemId].sold = false;
+
+        emit MarketItemReselled(
+            itemId,
+            idToMarketItem[itemId].nftContract,
+            idToMarketItem[itemId].tokenId,
+            idToMarketItem[itemId].minter,
+            msg.sender,
+            address(0),
+            idToMarketItem[itemId].price,
             false
         );
     }
@@ -95,6 +131,8 @@ contract NFTMarket is ReentrancyGuard {
             msg.value == price,
             "Please submit the asking price in order to complete the purchase"
         );
+
+        require(msg.sender != idToMarketItem[itemId].owner, "buyer can't buy self owned nft");
 
         idToMarketItem[itemId].seller.transfer(msg.value);
         IERC721(nftContract).transferFrom(address(this), msg.sender, tokenId);
@@ -153,14 +191,14 @@ contract NFTMarket is ReentrancyGuard {
         uint256 currentIndex = 0;
 
         for (uint256 i = 0; i < totalItemCount; i++) {
-            if (idToMarketItem[i + 1].seller == msg.sender) {
+            if (idToMarketItem[i + 1].minter == msg.sender) {
                 itemCount += 1;
             }
         }
 
         MarketItem[] memory items = new MarketItem[](itemCount);
         for (uint256 i = 0; i < totalItemCount; i++) {
-            if (idToMarketItem[i + 1].seller == msg.sender) {
+            if (idToMarketItem[i + 1].minter == msg.sender) {
                 uint256 currentId = i + 1;
                 MarketItem storage currentItem = idToMarketItem[currentId];
                 items[currentIndex] = currentItem;

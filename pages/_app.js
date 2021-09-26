@@ -14,7 +14,7 @@ function App({ Component, pageProps }) {
       setWeb3(web3);
       //get the address from metamask
       const accounts = await web3.eth.getAccounts();
-      console.log(accounts[0]);
+      console.log("cameo current account: ", accounts[0]);
       setCurrentAccount(accounts[0]);
       
       //get the networkid 
@@ -37,7 +37,12 @@ function App({ Component, pageProps }) {
         <p className="text-4xl font-bold">Macroverse Marketplace</p>
         <p className="text-4x">current account: {currentAccount}</p>
         <div className="flex mt-4">
-          <Link href="/">
+          <Link href={
+              {
+                pathname: '/',
+                query: {currentAccount: currentAccount}
+              }
+            }>
             <a className="mr-4 text-pink-500">Home</a>
           </Link>
           <Link href="/create-item">

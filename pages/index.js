@@ -1,19 +1,25 @@
 import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import axios from "axios";
+import { useRouter } from "next/router";
 
 import { contractNftAddress } from "../config";
 import NFTContract from "../contracts/NFTContract";
 import NFTMarketContract from "../contracts/NFTMarketContract";
 import { PROVIDER_MODE } from "../contracts/BaseContract";
 
-export default function Home(props) {
+export default function Home() {
+  const router = useRouter();
+  
   const [nfts, setNfts] = useState([]);
   const [loading, setLoading] = useState("not-loaded");
+
+  let currentAccount = router.query.currentAccount;
+  console.log("current state", currentAccount);
   
   useEffect(() => {
     loadNfts();
-  }, [props.currentAccount]);
+  }, []);
 
 
   async function loadNfts() {
@@ -27,6 +33,7 @@ export default function Home(props) {
         const meta = await axios.get(tokenURI);
 
         return {
+          minter: i.minter,
           owner: i.owner,
           seller: i.seller,
 
@@ -82,14 +89,14 @@ export default function Home(props) {
                 style={{ height: "200px", width: "100%" }}
                 src={nft.image}
                 className="object-cover"
-                alt={`${nft.name} ${nft.description} ${nft.owner} ${nft.seller}`}
+                alt={`${nft.name} ${nft.description} ${nft.owner} ${nft.seller} ${currentAccount}`}
               />
               <div className="p-4">
                 <p className="text-2xl font-semibold">{nft.name}</p>
                 <div style={{ height: "70px", overflow: "hidden" }}>
                   <p className="text-gray-400">{nft.description}</p>
                   <p className="text-gray-400">seller:{nft.seller}</p>
-                  <p className="text-gray-400">current account:{props.currentAccount}</p>
+                  <p className="text-gray-400">{currentAccount}</p>
                 </div>
               </div>
               <div className="p-4 bg-black">
@@ -99,17 +106,10 @@ export default function Home(props) {
                 
                 <button
                   className="w-full bg-pink-500 text-white font-bold py-2 px-12 rounded"
-                  disabled={props.currentAccount == nft.seller}
+                  disabled={nft.seller == currentAccount}
                   onClick={() => buyNft(nft)}
                 >
                   Buy
-                </button>
-                <button
-                  className="w-full bg-red-500 text-white font-bold py-2 px-12 rounded"
-                  disabled={props.currentAccount == nft.seller}
-                  onClick={() => buyNftPrivately(nft)}
-                >
-                  Buy Privately
                 </button>
               </div>
             </div>

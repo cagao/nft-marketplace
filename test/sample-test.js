@@ -30,6 +30,7 @@ contract("NFTMarket", async (accounts) => {
     await market.createMarketSale(nftContractAddress, 1, { value: auctionPrice, from: accounts[1] });
 
     items = await market.fetchMarketItems();
+    console.log("items 1: ", items);
 
     items = await Promise.all(
       items.map(async (i) => {
@@ -44,6 +45,6 @@ contract("NFTMarket", async (accounts) => {
       })
     );
 
-    console.log("items: ", items);
+    console.log("items 2: ", items);
   });
 });

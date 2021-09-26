@@ -26,6 +26,7 @@ export default function CreatorDashboard() {
         const meta = await axios.get(tokenURI);
 
         return {
+          minter: i.minter,
           owner: i.owner,
           seller: i.seller,
 
